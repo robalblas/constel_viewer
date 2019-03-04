@@ -15,16 +15,18 @@ int clip(int n)
 }
 
 // Auto calibrate X and Y
-//   hyst=1: add hysteresis, to prevent wobbling
+//   do_cal    : calibrate
+//   freeze_cal: freeze offset/slope
+//   do_dbg: show cal. numbers
 //   sldrmpl: only adapt slope/offset if slope changes more than this value.
 // Note: doesn't work properly (yet).
 //
 #define CNTMAX 10000
-void cal_xy(int *x,int *y,int hyst,float sldrmpl)
+void cal_xy(int *x,int *y,bool do_cal,bool freeze_cal,bool do_dbg)
 {
   static int xymin,xymax;
   static int cnt;
-  static int xyoffset,xyoffset_use;
+  static int xyoffset,xyoffset_use=0;
   static float xyslope=0.,xyslope_use=1.;
 
   xymin=MIN(xymin,(*x));
@@ -36,29 +38,30 @@ void cal_xy(int *x,int *y,int hyst,float sldrmpl)
   if (xymax<=xymin) xymax=xymin+1;
   cnt++;
 
-  if ((cnt>=CNTMAX) || (xyslope==0.))
+  if ((cnt>=CNTMAX)  || (xyslope==0.))
   {
-    xyoffset=xymin;
-    xyslope=(float)XY_MAX/(float)(xymax-xymin);
-    cnt=0;
-    xymin=8192; xymax=0;
-
-    if (hyst)
+    if ((!freeze_cal)  || (xyslope==0.))
     {
-      if (ABS(xyoffset_use-xyoffset) > 10)
-        xyoffset_use=xyoffset;
-
-      if (ABS(xyslope_use-xyslope) > sldrmpl)
-        xyslope_use=xyslope;
-    }
-    else
-    {
+      xyoffset=xymin;
+      xyslope=(float)XY_MAX/(float)(xymax-xymin);
       xyoffset_use=xyoffset;
       xyslope_use=xyslope;
     }
+    cnt=0;
+    if (do_dbg)
+    {
+      str2oled(1,7,"o=%d",xyoffset_use);
+      str2oled(1,5,"s=%f",xyslope_use);
+      str2oled(1,3,"xymi=%d",xymin);
+      str2oled(1,1,"xyma=%d",xymax);
+    } 
+    xymin=8192; xymax=0;
   }
-  *x=((*x)-xyoffset_use)*xyslope_use;
-  *y=((*y)-xyoffset_use)*xyslope_use;
+  if (do_cal)
+  {
+    *x=((*x)-xyoffset_use)*xyslope_use;
+    *y=((*y)-xyoffset_use)*xyslope_use;
+  }
 }
 
 
@@ -76,7 +79,7 @@ void cal_xy(int *x,int *y,int hyst,float sldrmpl)
 // integrlen=# integration steps
 // incval = slope integration
 // note: LUMMAX reached after LUMMAX/incval steps.
-void coll_write_pix2oled(int x,int y,int integrlen,int incval)
+void coll_write_pix2oled(int x,int y,int integrlen,int incval,int rgb)
 {
   static unsigned char *xyarr,*p;
   static int integr;
@@ -122,8 +125,9 @@ void coll_write_pix2oled(int x,int y,int integrlen,int incval)
           r=lum>>1;                                // red   value: 0...15 (lum: 0...31)
           g=lum>>0;                                // green value: 0...31
           b=lum>>1;                                // blue  value: 0...15
-
-
+          if (!(rgb&4)) r=0;
+          if (!(rgb&2)) g=0;
+          if (!(rgb&1)) b=0;
           word[0]=((b<<3)&0xf8) + ((g>>3)&0x0f);   // set LSByte word
           word[1]=((g<<5)&0xe0) + ((r&0x1f));      // set MSByte word
 
