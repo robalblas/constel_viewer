@@ -1,6 +1,61 @@
  Constellation viewer.
- Using STM32_F103 Blue Pill board and 128x128 OLED display.
+ ---------------------
+ This is software to create a constellation viewer using:
+   . STM32_F103 Blue Pill board 
+   . 128x128 OLED display with SPI interface
+   
+ 
+ Compile/upload environment.
+ ---------------------------
+ Asuming you have already an Arduino environment, you need to add stm32-libs.
+ See:
+  
+   https://wiki.stm32duino.com/index.php?title=Installation
+ Libs are found here:
+   https://github.com/rogerclarkmelbourne/Arduino_STM32/archive/master.zip
 
+ Unzip at right location; in Arduino, select:
+   Board: Geneic STM32F103C series
+   Upload method: STLink
+ (detailed instructions to add)
+ Now the Arduino-environment is ready to process and upload stm32 software.
+ 
+ ===========================================================================
+ 
+ Downloading, programming
+ ------------------------
+ Currently programming must be done using Arduino-environment. 
+ With a few changes the stm32 workbench could also be used (not tested yet).
+ Note that installing this workbench is more difficult compared to Arduino.
+ (See above, "Compile/upload environment".)
+
+ Steps to do:
+ 1. In your browser, go to: 
+      https://github.com/robalblas/constel_viewer
+    Click on the green "Clone or download" (right-top).
+    Choose "Download zip". 
+
+ 2. Unzip the file; note where your files are placed!
+      Files will be in a subfolder called 'constel_viewer-master'.
+
+ 3. Create in this folder a new subfolder called: (exactly this name!)
+      constel_stm32
+ 
+ 4. Move all files in constel_viewer-master to this new subfolder.
+      (Note: So all .ino and .h files.)
+
+ 5. Start Arduino, do 'File->Open'. Browse to the 'constel_stm32' subfolder.
+ 
+ 6. Choose constel_stm32.ino.
+      NOTE! Arduino should NOT(!) ask to create a subfolder 'constel_stm32'
+            because you are already in that subfolder!
+
+ 7. Compile and upload the usual way.
+
+===========================================================================
+
+ Hardware.
+ ---------
  Clocks:
  By default, clock settings are: (LeafLabs-style board)
    PLLMUL=7 = *9 ==>  9*8 = 72 MHz (cannot be changed after reset!)
