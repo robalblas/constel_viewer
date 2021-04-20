@@ -1,5 +1,7 @@
  Constellation viewer.
  ---------------------
+NOTE: This is older code. See newest code in https://github.com/werkgroep-kunstmanen!
+
  This is software to create a constellation viewer using:
    . STM32_F103 Blue Pill board 
    . 128x128 OLED display with SPI interface
